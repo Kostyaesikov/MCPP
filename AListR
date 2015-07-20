@@ -1,0 +1,578 @@
+# MCPP
+training mcpp
+package edu.mcpp.Alist;
+
+public class AListR implements ExList 
+{
+	int[] ar = new int[100];
+	int front = 50;
+	int tear = 50;
+	boolean flag = false;
+
+	@Override
+	public int size() 
+	{
+		if( flag )
+		{
+			return  ar.length + tear - front;			
+		}
+		return tear - front;
+	}
+
+	@Override
+	public void clear()
+	{
+		ar = new int[100];
+		front = 50;
+		tear = 50;
+		flag = false;
+	}
+
+	@Override
+	public int[] toArray() 
+	{
+		int[] Arr = new int [size()];
+		for (int i = 0 ; i < size(); i++)
+		{
+			if ( (front + i) < ar.length )
+				Arr[i] = ar[front + i];	
+			else 
+				Arr[i] = ar[ i + tear - size() ];
+		}		
+		return Arr;
+	}
+
+	@Override
+	public void init(int[] mas)
+	{
+		clear();
+		if(mas == null)
+		{
+			mas = new int [0];
+		}
+
+		while (ar.length < mas.length) //если передаваемый массив больше моего. Я ar[] увеличиваю на 10
+		{
+			ar = new int[ar.length + 100];
+		}		
+
+		for  (int i = 0; i < mas.length; i++)
+		{
+			if ( front + i < ar.length )
+			{				
+				ar[front + i] = mas[i];		
+				tear = tear + 1;
+			}
+			else
+			{
+				flag = true;
+				ar[front + i - ar.length] = mas[i];
+				tear = front + i + 1 - ar.length;
+			}			
+		}
+	}
+
+	@Override
+	public void addEnd(int val) 
+	{
+		if( size() == ar.length) 
+		{
+			int[] tmp_1 = new int[ar.length + 1];
+			int[] tmp_2 = toArray();
+			for(int i = 0; i < ar.length; i++)
+			{
+				tmp_1[i] = tmp_2[i];
+			}
+			tmp_1[ar.length] = val;
+			init(tmp_1);
+			flag = false;
+			return;
+		}	
+		if( tear >= ar.length )
+		{
+			flag = true;
+			tear = tear + 1 - ar.length;
+			ar[tear - 1] = val; 
+		}
+		else
+		{
+			ar[tear++] = val; 
+		}		
+	}
+
+	@Override
+	public void addStart(int val) 
+	{
+		if( size() == ar.length) 
+		{
+			int[] ar_tmp = new int[ar.length + 100];
+			tear = front;
+			for (int i = 0 ; i < ar.length; i++)
+			{ 
+				if (front + i < ar.length)
+					ar_tmp[front + i] =ar[front + i];
+				else
+					ar_tmp[front + i] =ar[front + i - ar.length];
+				tear += 1;
+			}
+			ar = ar_tmp;
+			ar[--front] = val;
+			flag = false;
+			return;
+		}	
+		if( front == 0 )
+		{
+			flag = true;
+			front = ar.length - 1;
+			ar[ar.length - 1] = val; 
+		}
+		else
+		{
+			ar[--front] = val;
+		}
+	}
+
+	@Override
+	public void addPos(int pos, int val) 
+	{
+		if  (pos > size()  || pos < 0)			
+			throw new IllegalArgumentException();
+
+		if( size() == ar.length) 
+		{
+			int[] ar_tmp = new int[ar.length + 100];
+			tear = front;
+			for (int i = 0 ; i < ar.length; i++)
+			{ 
+				if (front + i < ar.length)
+					ar_tmp[front + i] =ar[front + i];
+				else
+					ar_tmp[front + i] =ar[front + i - ar.length];
+				tear += 1;
+			}
+			ar = ar_tmp;
+			flag = false;
+		}	
+
+		if(tear == ar.length)
+		{
+			tear = 1;
+			flag = true;
+		}
+		else
+			tear++;
+
+		for( int i = tear - 1;    ; i--)
+		{
+			if(i - 1 >= 0)
+				ar[i] = ar[i-1];
+			else if(i == 0)
+				ar[i] = ar[i - 1 + ar.length];
+			else
+				ar[i + ar.length] = ar[i - 1 + ar.length];
+
+			if( i == front + pos)
+				break;
+			if( ar.length + i == front + pos)
+				break;
+		}
+
+		ar[front + pos] = val;
+	}
+
+	@Override
+	public int delEnd() 
+	{
+		if  (size() == 0)			
+			throw new IllegalArgumentException();
+
+		int end =  ar[tear - 1];
+
+		if( tear == 1 )
+		{
+			flag = false;
+			tear = ar.length;
+		}		
+		else
+		{
+			tear--  ;
+		}		
+		return end;
+	}
+
+	@Override
+	public int delStart() 
+	{
+		if  (size() == 0)			
+			throw new IllegalArgumentException();
+
+		int start =  ar[front];
+
+		if( front == ar.length - 1)
+		{
+			flag = false;
+			front = 0;
+		}
+		else
+		{
+			front++  ;
+		}		
+		return start;
+	}
+
+	@Override
+	public int delPos(int pos) 
+	{
+		if  (pos < 0 || pos > size() || size() == 0)			
+			throw new IllegalArgumentException();
+
+		int res;
+
+		if(front + pos >= ar.length)
+			res = ar[front + pos - ar.length];
+		else
+			res = ar[front + pos];
+
+		if(flag)
+		{
+			for( int i = front + pos; i - ar.length != tear; i++)
+			{
+				if(i < ar.length - 1)
+					ar[i] = ar[i+1];
+				else if(i == ar.length - 1)
+					ar[i] = ar[0];
+				else
+					ar[i - ar.length] = ar[i - ar.length +1];
+			}
+		}
+		else
+		{				
+			for (int i = front + pos; i < tear - 1; i++)
+			{				
+				ar[i] = ar[i + 1];
+
+				if(i == ar.length - 1)
+					break;
+			}
+			if(tear == ar.length)
+				ar[ar.length - 1] = ar[0] ;
+		}
+
+		if(tear == 1)
+		{
+			tear = ar.length;
+			flag = false;;
+		}
+		else
+			tear--;
+
+		return res;
+	}
+
+	@Override
+	public int max() 
+	{
+		if ( size() == 0)
+			throw new IllegalArgumentException();
+
+		int max = ar[front]; 
+
+		if(flag)
+		{
+			for( int i = front ; i - ar.length != tear; i++)
+			{
+				if(i < ar.length && max < ar[i]) 								
+					max = ar[i];
+
+				else if( i >= ar.length && max < ar[i - ar.length])
+					max = ar[i - ar.length];
+			}			
+		}
+		else
+		{				
+			for (int i = 0; i < size(); i++)
+			{
+				if ( max < ar[front + i] )				
+					max = ar[front + i];				
+			}
+		}
+		return max;
+	}
+
+	@Override
+	public int min() 
+	{
+		if ( size() == 0)
+			throw new IllegalArgumentException();
+
+		int min = ar[front]; 
+
+		if(flag)
+		{
+			for( int i = front ; i - ar.length != tear; i++)
+			{
+				if(i < ar.length && min > ar[i]) 								
+					min = ar[i];
+
+				else if( i >= ar.length && min > ar[i - ar.length])
+					min = ar[i - ar.length];
+			}			
+		}
+		else
+		{				
+			for (int i = 0; i < size(); i++)
+			{
+				if ( min > ar[front + i] )				
+					min = ar[front + i];				
+			}
+		}
+		return min;
+	}
+
+	@Override
+	public int maxIndex() 
+	{
+		if ( size() == 0)
+			throw new IllegalArgumentException();
+
+		int indmax = 0;
+		int max = ar[front]; 
+		if(flag)
+		{
+			for( int i = front ; i - ar.length != tear; i++)
+			{
+				if(i < ar.length && max < ar[i]) 								
+				{
+					max = ar[i];
+					indmax = i - front;
+				}
+
+				else if( i >= ar.length && max < ar[i - ar.length])
+				{
+					max = ar[i - ar.length];
+					indmax = i - front;
+				}
+			}			
+		}
+		else
+		{						
+			for (int i = 0; i < size(); i++)
+			{
+				if (ar[front + indmax] < ar[front + i] )				
+					indmax = i;				
+			}
+		}
+		return indmax;
+	}
+
+	@Override
+	public int minIndex() 
+	{
+		if ( size() == 0)
+			throw new IllegalArgumentException();
+
+		int indmin = 0;
+		int min = ar[front]; 
+		if(flag)
+		{
+			for( int i = front ; i - ar.length != tear; i++)
+			{
+				if(i < ar.length && min > ar[i]) 								
+				{
+					min = ar[i];
+					indmin = i - front;
+				}
+
+				else if( i >= ar.length && min > ar[i - ar.length])
+				{
+					min = ar[i - ar.length];
+					indmin = i - front;
+				}
+			}			
+		}
+		else
+		{						
+			for (int i = 0; i < size(); i++)
+			{
+				if (ar[front + indmin] > ar[front + i] )				
+					indmin = i;				
+			}
+		}
+		return indmin;
+	}
+
+	@Override
+	public void sort() 
+	{
+		if ( size() == 0 )
+			throw new IllegalArgumentException();
+
+		if(flag)
+		{
+			for(int i = size() - 1 ; i > 0 ; i--)
+			{
+				for(int j = 0 ; j < i ; j++)
+				{
+					if( j + front + 1 < ar.length )
+					{
+						if( ar[front+j] > ar[front+j+1] )
+						{
+							int tmp = ar[front+j];
+							ar[front+j] = ar[front+j+1];
+							ar[front+j+1] = tmp;
+						}
+					}
+					else if(j + front + 1 == ar.length)
+					{
+						if( ar[front+j] > ar[0] )
+						{
+							int tmp = ar[front+j];
+							ar[front+j] = ar[0];
+							ar[0] = tmp;
+						}						
+					}
+					else if( j + front + 1 > ar.length )
+					{
+						if( ar[front+j - ar.length] > ar[front+j+1 - ar.length] )
+						{
+							int tmp = ar[front+j - ar.length];
+							ar[front+j - ar.length] = ar[front+j+1 - ar.length];
+							ar[front+j+1 - ar.length] = tmp;
+						}
+					}
+				}
+			}		
+		}
+		else
+		{
+			for(int i = size() - 1 ; i > 0 ; i--)
+			{
+				for(int j = 0 ; j < i ; j++)
+				{
+					if( ar[front+j] > ar[front+j+1] )
+					{
+						int tmp = ar[front+j];
+						ar[front+j] = ar[front+j+1];
+						ar[front+j+1] = tmp;
+					}
+				}
+			}
+		}
+	}
+
+	@Override
+	public void reverse() 
+	{
+		if ( size() == 0 )
+			throw new IllegalArgumentException();
+
+		if(flag)
+		{
+			int b = 0;
+			for (int i = 0; i < size()/2; i++)
+			{
+				if( (front + i < ar.length) && (tear -1 -i > front) )
+				{
+					b = ar[front + i];
+					ar[front + i] = ar[tear -1 -i];
+					ar[tear -1 -i] = b;
+				}
+				if( (front + i < ar.length) && (tear -1 -i < front) && (tear -1 -i >= 0) )
+				{
+					b = ar[front + i];
+					ar[front + i] = ar[tear -1 -i];
+					ar[tear -1 -i] = b;
+				}
+				if( (front + i < ar.length) && (tear -1 -i < 0) )
+				{
+					b = ar[front + i];
+					ar[front + i] = ar[ar.length + tear -1 -i];
+					ar[ar.length + tear -1 -i] = b;
+				}
+				if( (front + i >= ar.length) && (tear -1 -i >= 0) )
+				{
+					b = ar[front + i - ar.length];
+					ar[front + i - ar.length] = ar[tear -1 -i];
+					ar[tear -1 -i] = b;
+				}
+			}
+		}
+		else
+		{
+			int b = 0;
+			for (int i = 0; i < size()/2; i++)
+			{
+				b = ar[front + i];
+				ar[front + i] = ar[tear -1 -i];
+				ar[tear -1 -i] = b;
+			}
+		}
+	}
+
+	@Override
+	public void halfReverse() 
+	{
+		if ( size() == 0 )
+			throw new IllegalArgumentException();
+
+		if(flag)
+		{
+			int b = 0;
+			for (int i = 0; i < (size())/2; i++)
+			{
+				if( (front + i < ar.length) && (front + (size() + 1)/2 + i < ar.length) )
+				{
+					b = ar[front + i];
+					ar[front + i] = ar[front + (size() + 1)/2 + i];
+					ar[front + (size() + 1)/2 + i] = b;
+				}
+				if( (front + i < ar.length) && (front + (size() + 1)/2 + i >= ar.length) )
+				{
+					b = ar[front + i];
+					ar[front + i] = ar[front + (size() + 1)/2 + i - ar.length];
+					ar[front + (size() + 1)/2 + i - ar.length] = b;
+				}
+				if( (front + i >= ar.length) && (front + (size() + 1)/2 + i >= ar.length) )
+				{
+					b = ar[front + i - ar.length];
+					ar[front + i - ar.length] = ar[front + (size() + 1)/2 + i - ar.length];
+					ar[front + (size() + 1)/2 + i - ar.length] = b;
+				}
+			}
+		}
+		else
+		{
+			int b = 0;
+			for (int i = 0; i < (size())/2; i++)
+			{
+				b = ar[front + i];
+				ar[front + i] = ar[front + (size() + 1)/2 + i];
+				ar[front + (size() + 1)/2 + i] = b;
+			}
+		}
+	}
+
+	@Override
+	public void set(int pos, int val) 
+	{
+		if (pos < 0 || pos >= size())
+			throw new ArrayIndexOutOfBoundsException();
+
+		if(front + pos >= ar.length)
+			ar[front + pos - ar.length] = val;
+		else
+			ar[front + pos] = val;
+	}
+
+	@Override
+	public int get(int pos) 
+	{
+		if ( pos < 0 || pos >= size())
+			throw new IllegalArgumentException();
+
+		if(front + pos >= ar.length)
+			return ar[front + pos - ar.length];
+		else
+			return ar[front + pos];
+	}
+}
