@@ -1,0 +1,389 @@
+# MCPP
+training mcpp
+package edu.mcpp.Alist;
+
+public class LListR_1 implements ExList 
+{
+	class Node
+	{
+		int data;
+		Node next = null;
+		Node prev = null;
+		public Node(int val)
+		{
+			data = val;
+		}		
+	}
+
+	Node root = null;
+
+	@Override
+	public int size()
+	{
+		if (root == null)      
+			return 0;		
+
+		if (root.next == root)
+			return 1;
+
+		int size = 1;          
+		Node tmp = root.next;	
+		while (tmp != root )    
+		{                            
+			size++;                  
+			tmp = tmp.next;          
+		}		
+		return size;
+	}
+
+	@Override
+	public void clear() 
+	{
+		root = null; 
+	}
+
+	@Override
+	public int[] toArray() 
+	{
+		int[] ret = new int[size()];
+		Node tmp = root;		
+		for (int i = 0; i < size(); i++)
+		{
+			ret[i] = tmp.data;
+			tmp = tmp.next;
+		}
+		return ret;
+	}
+
+	@Override
+	public void init(int[] mas) 
+	{
+		clear();
+		if(mas == null)
+			mas = new int[0];
+
+		for  (int i = 0; i < mas.length; i++)
+		{			
+			addEnd(mas[i]);
+		}
+	}
+
+	@Override
+	public void addEnd(int val) 
+	{
+		Node tmp = new Node(val);
+
+		if(root == null)
+		{
+			root = tmp;
+			root.next = root;
+			root.prev = root;
+			return;			
+		}
+
+		tmp.prev = root.prev;
+		tmp.next = root;
+		root.prev.next = tmp;
+		root.prev = tmp;	
+	}
+
+	@Override
+	public void addStart(int val) 
+	{
+		Node tmp = new Node(val);
+
+		if(root == null)
+		{
+			root = tmp;
+			root.next = root;
+			root.prev = root;
+			return;			
+		}
+
+		tmp.prev = root.prev;
+		tmp.next = root;
+		root.prev.next = tmp;
+		root.prev = tmp;
+		root = root.prev;
+
+	}
+
+	@Override
+	public void addPos(int pos, int val) 
+	{
+		if  (pos > size() || pos < 0)			
+			throw new IllegalArgumentException();
+
+		Node tmp = new Node(val);
+
+		if( root == null )
+		{
+			addEnd(val);
+			return;
+		}	
+		if( pos == 0 )
+		{
+			addStart(val);
+			return;
+		}	
+
+		Node rez = root;
+		for (int i = 1; i < pos; i++)
+		{
+			rez = rez.next;
+		}		
+		tmp.next = rez.next;
+		tmp.prev = rez;
+		rez.next.prev = tmp;
+		rez.next = tmp;
+	}
+
+	@Override
+	public int delEnd() 
+	{
+		if( root == null )
+			throw new IllegalArgumentException();
+
+		if( size() == 1 )
+		{
+			int end = root.data;
+			root = null;
+			return end;
+		}
+
+		int end = root.prev.data;
+		root.prev.prev.next = root;
+		root.prev = root.prev.prev;
+		return end;
+	}
+
+	@Override
+	public int delStart() 
+	{
+		if( root == null )
+			throw new IllegalArgumentException();
+
+		int start = root.data;
+		if( size() == 1 )
+		{			
+			root = null;
+			return start;
+		}
+		root.prev.next = root.next;
+		root.next.prev = root.prev;
+		root = root.next;
+		return start;
+	}
+
+	@Override
+	public int delPos(int pos) 
+	{
+		if( root == null || pos < 0 || pos > size() )
+			throw new IllegalArgumentException();
+
+		if( size() == 1 )
+		{
+			int end = root.data;
+			root = null;
+			return end;
+		}
+		if( pos == 0 )
+		{
+			int end = root.data;
+			delStart();
+			return end;
+		}
+
+		Node rez = root;
+		for (int i = 1; i < pos; i++)
+		{
+			rez = rez.next;
+		}
+		int delpos = rez.next.data;
+		rez.next.next.prev = rez;
+		rez.next = rez.next.next; 		
+		return delpos;
+	}
+
+	@Override
+	public int max() 
+	{
+		if ( size() == 0)
+			throw new IllegalArgumentException();
+
+		int max = root.data; 
+		Node rez_1 = root;
+		for (int i = 0; i < size(); i++)
+		{
+			if ( max < rez_1.data)
+			{
+				max = rez_1.data;
+			}
+			rez_1 = rez_1.next;
+		}
+		return max;
+	}
+
+	@Override
+	public int min() 
+	{
+		if ( size() == 0)
+			throw new IllegalArgumentException();
+
+		int min = root.data; 
+		Node rez_1 = root;
+		for (int i = 0; i < size(); i++)
+		{
+			if ( min > rez_1.data)
+			{
+				min = rez_1.data;
+			}
+			rez_1 = rez_1.next;
+		}
+		return min;
+	}
+
+	@Override
+	public int maxIndex() 
+	{
+		if ( size() == 0)
+			throw new IllegalArgumentException();
+
+		int maxind = 0; 
+		int max = root.data; 
+		Node rez_1 = root;
+		for (int i = 0; i < size(); i++)
+		{
+			if ( max < rez_1.data)
+			{
+				max = rez_1.data;
+				maxind = i;
+			}
+			rez_1 = rez_1.next;
+		}
+		return maxind;
+	}
+
+	@Override
+	public int minIndex() 
+	{
+		if ( size() == 0)
+			throw new IllegalArgumentException();
+
+		int minind = 0; 
+		int min = root.data; 
+		Node rez_1 = root;
+		for (int i = 0; i < size(); i++)
+		{
+			if ( min > rez_1.data)
+			{
+				min = rez_1.data;
+				minind = i;
+			}
+			rez_1 = rez_1.next;
+		}
+		return minind;
+	}
+
+	@Override
+	public void sort() 
+	{
+		if ( size() == 0 )
+			throw new IllegalArgumentException();
+
+		int[] tmp = toArray();
+		for(int i = size() - 1 ; i > 0 ; i--)
+		{
+			for(int j = 0 ; j < i ; j++)
+			{
+				if( tmp[j] > tmp[j+1] )
+				{
+					int x = tmp[j];
+					tmp[j] = tmp[j+1];
+					tmp[j+1] = x;
+				}
+			}
+		}
+		init(tmp);
+	}
+
+	@Override
+	public void reverse() 
+	{
+		if ( size() == 0 )
+			throw new IllegalArgumentException();
+
+		int[] tmp = toArray();
+		int b = 0;
+		for (int i = 0; i < (size())/2; i++)
+		{
+			b = tmp[i];
+			tmp[i] = tmp[size() - 1 - i];
+			tmp[size() - 1 - i] = b;
+		}
+		init(tmp);
+	}
+
+	@Override
+	public void halfReverse() 
+	{
+		if ( size() == 0 )
+			throw new IllegalArgumentException();
+
+		int[] tmp = toArray();
+		int b = 0;
+		for (int i = 0; i < (size())/2; i++)
+		{
+			b = tmp[i];
+			tmp[i] = tmp[(size() + 1)/2 + i];
+			tmp[(size() + 1)/2 + i] = b;
+		}
+		init(tmp);
+	}
+
+	@Override
+	public void set(int pos, int val) 
+	{
+		if (pos < 0 || pos >= size())
+			throw new ArrayIndexOutOfBoundsException();
+
+		if(pos == 0)
+		{
+			root.data = val;
+			return;
+		}
+		if(pos == size()-1)
+		{
+			root.prev.data = val;
+			return;
+		}
+		Node rez_1 = root;
+		for (int i = 0; i < pos; i++)
+		{
+			rez_1 = rez_1.next;
+		}
+		rez_1.data = val;
+	}
+
+	@Override
+	public int get(int pos) 
+	{
+		if (pos < 0 || pos >= size())
+			throw new IllegalArgumentException();
+
+		if(pos == 0)
+		{
+			return root.data;
+		}
+		if(pos == size()-1)
+		{			
+			return root.prev.data;
+		}
+		Node rez_1 = root;
+		for (int i = 0; i < pos; i++)
+		{
+			rez_1 = rez_1.next;
+		}
+		return rez_1.data;
+	}
+}
