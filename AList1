@@ -1,0 +1,285 @@
+# MCPP
+training mcpp
+package edu.mcpp.Alist;
+
+public class AList1 implements ExList 
+{
+	int[] ar = new int[10];
+	int top = 0;
+
+	@Override
+	public int size() 
+	{
+		return top;
+	}
+
+	@Override
+	public void clear() 
+	{
+		top = 0;		
+	}
+
+	@Override
+	public int[] toArray() 
+	{
+		int[] Arr = new int [top];		
+		for (int i = 0 ; i < top; i++)
+		{
+			Arr[i] = ar[i];
+		}
+		return Arr;
+	}
+
+	@Override
+	public void init(int[] mas) 
+	{
+		if(mas == null)
+		{
+			mas = new int [0];
+		}
+		while (ar.length < mas.length) //если передаваемый массив больше моего. Я ar[] увеличиваю на 10
+		{
+			ar = new int[ar.length + 10];
+		}		
+
+		for  (int i = 0; i < mas.length; i++)
+		{
+			ar[i] = mas[i];			
+		}
+		top = mas.length;  
+	}
+
+	@Override
+	public void addEnd(int val) 
+	{
+		ar[top++] = val;  
+	}
+
+	@Override
+	public void addStart(int val) 
+	{
+		top ++;
+		while (ar.length < top) //если передаваемый массив больше моего. Я ar[] увеличиваю на 10 с сохранением в нем всех старых значений
+		{
+			int[] arex = ar;
+			ar = new int[ar.length + 10];
+			for(int i = 1; i < top; i++ )
+			{
+				ar[i] = arex[i];
+			}
+		}			
+		for (int i = 0; i < top; i++)
+		{
+			ar[top - i] = ar[top - i - 1];
+		}
+		ar[0] = val;
+	}
+
+	@Override
+	public void addPos(int pos, int val) 
+	{
+		if  (pos > size()  || pos < 0)			
+			throw new IllegalArgumentException();
+
+		top ++;
+		while (ar.length < top) //если передаваемый массив больше моего. Я ar[] увеличиваю на 10 с сохранением в нем всех старых значений
+		{
+			int[] arex = ar;
+			ar = new int[ar.length + 10];
+			for(int i = 1; i < top; i++ )
+			{
+				ar[i] = arex[i];
+			}
+		}			
+		for (int i = 0; i < top; i++)
+		{
+			if( top - i == pos)
+				break;
+
+			ar[top - i] = ar[top - i -1];		
+		}
+		ar[pos] = val;
+
+	}
+
+	@Override
+	public int delEnd() 
+	{		  
+		if  (top == 0)			
+			throw new IllegalArgumentException();
+
+		return ar[--top];
+	}
+
+	@Override
+	public int delStart() 
+	{
+		if  (top == 0)			
+			throw new IllegalArgumentException();
+
+		int res = ar[top - 1];		
+		for (int i = 0; i < top - 1; i++)
+		{
+			ar[i] = ar[i + 1];
+		}
+		top--;
+		return res;
+	}
+
+	@Override
+	public int delPos(int pos) 
+	{
+		if  (pos > size() || size() == 0 || pos < 0)			
+			throw new IllegalArgumentException();
+
+		if  (top == 0 || pos < 0 || pos > ar[top-1])			
+			throw new IllegalArgumentException();
+
+		int res = ar[pos];		
+		for (int i = 0; i < top - 1; i++)
+		{
+			if (i < pos)
+				ar[i] = ar[i];
+			else
+				ar[i] = ar[i + 1];
+		}
+		top--;
+		return res;
+	}
+
+	@Override
+	public int max() 
+	{
+		if ( top == 0)
+			throw new IllegalArgumentException();
+
+		int max = ar[0]; 
+		for (int i = 0; i < top; i++)
+		{
+			if ( max < ar[i] )
+			{
+				max = ar[i];
+			}
+		}
+		return max;
+	}
+
+	@Override
+	public int min() 
+	{
+		if ( top == 0)
+			throw new IllegalArgumentException();
+
+		int min = ar[0]; 
+		for (int i = 0; i < top; i++)
+		{
+			if ( min > ar[i] )
+			{
+				min = ar[i];
+			}
+		}
+		return min;
+	}
+
+	@Override
+	public int maxIndex() 
+	{
+		if ( top == 0)
+			throw new IllegalArgumentException();
+
+		int max = 0; 
+		for (int i = 0; i < top; i++)
+		{
+			if ( ar[max] < ar[i] )
+			{
+				max = i;
+			}
+		}
+		return max;
+	}
+
+	@Override
+	public int minIndex() 
+	{
+		if ( top == 0)
+			throw new IllegalArgumentException();
+
+		int min = 0; 
+		for (int i = 0; i < top; i++)
+		{
+			if ( ar[min] > ar[i] )
+			{
+				min = i;
+			}
+		}
+		return min;
+	}
+
+	@Override
+	public void sort() 
+	{
+		if ( size() == 0 )
+			throw new IllegalArgumentException();
+		
+		for(int i = top-1 ; i > 0 ; i--)
+		{
+			for(int j = 0 ; j < i ; j++)
+			{
+				if( ar[j] > ar[j+1] )
+				{
+					int tmp = ar[j];
+					ar[j] = ar[j+1];
+					ar[j+1] = tmp;
+				}
+			}
+		}
+	}
+
+	@Override
+	public void reverse() 
+	{
+		if ( size() == 0 )
+			throw new IllegalArgumentException();
+		
+		int b = 0;
+		for (int i = 0; i < top/2; i++)
+		{
+			b = ar[i];
+			ar[i] = ar[top -1 -i];
+			ar[top -1 -i] = b;
+		}
+	}
+
+	@Override
+	public void halfReverse() 
+	{
+		if ( size() == 0 )
+			throw new IllegalArgumentException();
+		int b = 0;
+		for (int i = 0; i < (size())/2; i++)
+		{
+			b = ar[i];
+			ar[i] = ar[(size() + 1)/2 + i];
+			ar[(size() + 1)/2 + i] = b;
+		}
+	}
+
+	@Override
+	public void set(int pos, int val) 
+	{
+		if (pos < 0 || pos >= top)
+			throw new ArrayIndexOutOfBoundsException();
+
+		ar[pos] = val;
+	}
+
+	@Override
+	public int get(int pos) 
+	{
+		if ( pos < 0 || pos >= top)
+			throw new IllegalArgumentException();
+
+		return ar[pos];
+	}
+
+}
